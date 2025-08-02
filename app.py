@@ -1,4 +1,4 @@
-import json, ó
+import json, os
 from flask import Flask, request, jsonify, render_template
 from binance.client import Client
 from binance.enums import *
