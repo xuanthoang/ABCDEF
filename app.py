@@ -1,23 +1,30 @@
-import json, os
+import os
+import json
 from flask import Flask, request, jsonify, render_template
 from binance.client import Client
 from binance.enums import *
+from dotenv import load_dotenv
+
+# Load biến từ .env
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
+WEBHOOK_PASSPHRASE = os.getenv("WEBHOOK_PASSPHRASE")
 
 app = Flask(__name__)
 
-client = Client(config.API_KEY, config.API_SECRET)
-client.FUTURES_URL = 'https://fapi.binance.com'
+client = Client(API_KEY, API_SECRET)
+client.FUTURES_URL = 'https://fapi.binance.com'  # Giao dịch Binance Futures
 
 def futures_order(symbol, side, quantity, order_type=FUTURE_ORDER_TYPE_MARKET):
     try:
-        print(f"Sending {order_type} order: {side} {quantity} {symbol}")
         order = client.futures_create_order(
             symbol=symbol,
             side=side,
             type=order_type,
             quantity=quantity
         )
-        print(order)
         return order
     except Exception as e:
         print(f"Order error: {e}")
@@ -31,7 +38,7 @@ def home():
 def webhook():
     data = json.loads(request.data)
 
-    if data.get('passphrase') != config.WEBHOOK_PASSPHRASE:
+    if data.get('passphrase') != WEBHOOK_PASSPHRASE:
         return jsonify({"code": "error", "message": "Invalid passphrase"})
 
     try:
